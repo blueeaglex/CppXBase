@@ -8,9 +8,8 @@ find_package(
 			atomic
 			)
 if(Boost_FOUND)
-	message("boost头文件: ${Boost_INCLUDE_DIRS}")
-	message("boost库文件夹:${Boost_LIBRARY_DIRS}")
-	message("boost库文件: ${Boost_LIBRARIES}")
+	message("boost include directories: <${Boost_INCLUDE_DIRS}>")
+	message("boost lib directories : <${Boost_LIBRARY_DIRS}>")
 else()
 	message(FATAL_ERROR "Boost not Found!! Please spacify var BOOST_ROOT.")
 endif()
