@@ -12,8 +12,6 @@ namespace os
 	namespace chrono = boost::chrono;
 	namespace interprocess = boost::interprocess;
 	static const size_t MaxPath = 260u;
-	static const char* WRITE = "wb";
-	static const char* READ = "rb";
 }
 
 typedef std::string String;
