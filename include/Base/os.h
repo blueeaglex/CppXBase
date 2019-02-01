@@ -1,53 +1,57 @@
 #ifndef __CPP_BASE_OS_H__
 #define __CPP_BASE_OS_H__
-
-#include <boost/filesystem.hpp>
+#include "boost/filesystem.hpp"
 #include "boost/chrono.hpp"
 #include "boost/interprocess/file_mapping.hpp"
 #include "boost/interprocess/mapped_region.hpp"
 #include "boost/process.hpp"
+#include "boost/program_options.hpp"
 #include <string>
 #define _CRT_SECURE_NO_WARNINGS
 namespace os
 {
+	using boost::system::error_code;
 	namespace filesystem = boost::filesystem;
-    namespace chrono = boost::chrono;
-    namespace interprocess = boost::interprocess;
+	namespace chrono = boost::chrono;
+	namespace interprocess = boost::interprocess;
     namespace process = boost::process;
+	namespace program_options = boost::program_options;
 	static const size_t MaxPath = 260u;
+	static const char* WRITE = "wb";
+	static const char* READ = "rb";
 
     inline bool process_exist(const char* pidName)
     {
         bool ret = false;
 
-        DIR *dir; //è¿›ç¨‹ç›®å½•
+        DIR *dir; //½ø³ÌÄ¿Â¼
         struct dirent * next;
 
         FILE *status;
         char buffer[1024];
         char name[1024];
 
-        dir = opendir("/proc"); ///procä¸­åŒ…æ‹¬å½“å‰çš„è¿›ç¨‹ä¿¡æ¯,è¯»å–è¯¥ç›®å½•
-        if (!dir) //ç›®å½•ä¸å­˜åœ¨ç»“æŸ
+        dir = opendir("/proc"); ///procÖĞ°üÀ¨µ±Ç°µÄ½ø³ÌĞÅÏ¢,¶ÁÈ¡¸ÃÄ¿Â¼
+        if (!dir) //Ä¿Â¼²»´æÔÚ½áÊø
         {
             printf("Cannot open /proc\n");
             return 0;
         }
 
-        //éå† è¯»å–è¿›ç¨‹ä¿¡æ¯
+        //±éÀú ¶ÁÈ¡½ø³ÌĞÅÏ¢
         while ((next = readdir(dir)) != NULL)
         {
-            //è·³è¿‡"."å’Œ".."ä¸¤ä¸ªæ–‡ä»¶å
+            //Ìø¹ı"."ºÍ".."Á½¸öÎÄ¼şÃû
             if ((strcmp(next->d_name, "..") == 0) || (strcmp(next->d_name, ".") == 0)) continue;
 
-            //å¦‚æœæ–‡ä»¶åä¸æ˜¯æ•°å­—åˆ™è·³è¿‡
+            //Èç¹ûÎÄ¼şÃû²»ÊÇÊı×ÖÔòÌø¹ı
             if (!isdigit(*next->d_name)) continue;
 
-            //åˆ¤æ–­æ˜¯å¦èƒ½æ‰“å¼€çŠ¶æ€æ–‡ä»¶
+            //ÅĞ¶ÏÊÇ·ñÄÜ´ò¿ª×´Ì¬ÎÄ¼ş
             sprintf(buffer,"/proc/%s/status",next->d_name);
             if (!(status = fopen(buffer,"r"))) continue;
 
-            //è¯»å–çŠ¶æ€æ–‡ä»¶
+            //¶ÁÈ¡×´Ì¬ÎÄ¼ş
             if (fgets(buffer,1024,status) == NULL)
             {
                 fclose(status);
@@ -55,9 +59,9 @@ namespace os
             }
             fclose(status);
 
-            sscanf(buffer,"%*s %s",name); //è¯»å–PIDå¯¹åº”çš„ç¨‹åºåï¼Œæ ¼å¼ä¸ºName:  ç¨‹åºå
+            sscanf(buffer,"%*s %s",name); //¶ÁÈ¡PID¶ÔÓ¦µÄ³ÌĞòÃû£¬¸ñÊ½ÎªName:  ³ÌĞòÃû
 
-    //        if (strcmp(name,pidName) == 0) //åˆ¤æ–­ç¨‹åºåæ˜¯å¦ç¬¦åˆé¢„æœŸ
+    //        if (strcmp(name,pidName) == 0) //ÅĞ¶Ï³ÌĞòÃûÊÇ·ñ·ûºÏÔ¤ÆÚ
             if(strstr(name,pidName))
                 ret = true;
         }
